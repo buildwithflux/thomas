@@ -51,7 +51,11 @@ const StyleGroup = forwardRef<IInstancedTextAPI & { font: Font3D }, { font: Font
   { font },
   ref
 ) {
-  const textMat = useInstancedTextMaterial(useFontTexture(font.texturePath), font.fontMetadata)
+  const textMat = useInstancedTextMaterial(
+    useFontTexture(font.offsetsPath),
+    useFontTexture(font.normalsPath),
+    font.fontMetadata
+  )
 
   const [{ instanceAllocated, geometry }, setInstanceData] = useState({
     // Starts as 0 to force an initial realloc
@@ -164,7 +168,7 @@ export function InstancedTextProvider({ children, styles }: PropsWithChildren<{ 
   return (
     <instancedTextContext.Provider value={api}>
       {styles.map((font) => (
-        <StyleGroup font={font} ref={setApiRefFn} />
+        <StyleGroup key={font.offsetsPath} font={font} ref={setApiRefFn} />
       ))}
       {children}
     </instancedTextContext.Provider>

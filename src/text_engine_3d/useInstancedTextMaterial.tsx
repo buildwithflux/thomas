@@ -1,49 +1,68 @@
 import { useMemo } from 'react'
-import { NearestFilter, RawShaderMaterial, Texture, Vector3 } from 'three'
-
-import { FontInfo3D } from './types'
+import { MeshPhongMaterial, NearestFilter, Texture, Vector3 } from 'three'
 import { useTexture } from '@react-three/drei'
 
-export function useInstancedTextMaterial(fontTexture: Texture, fontMetadata: FontInfo3D) {
-  const textMat = useMemo(() => {
-    const material = new RawShaderMaterial()
-    material.uniforms = {
-      offsets: { value: fontTexture },
-      shift: { value: new Vector3(fontMetadata.xShift, fontMetadata.yShift, fontMetadata.zShift) },
-      scale: { value: new Vector3(fontMetadata.xScale, fontMetadata.yScale, fontMetadata.zScale) },
-    }
+import { FontInfo3D } from './types'
 
-    material.vertexShader = `#version 300 es
-        precision highp int;
-        precision highp float;
-        uniform mat4 modelViewMatrix;
-        uniform mat4 projectionMatrix;
+export function useInstancedTextMaterial(offsetsTexture: Texture, normalsTexture: Texture, fontMetadata: FontInfo3D) {
+  const textMat = useMemo(() => {
+    const material = new MeshPhongMaterial()
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms = {
+        ...shader.uniforms,
+        offsets: { value: offsetsTexture },
+        normals: { value: normalsTexture },
+        shift: { value: new Vector3(fontMetadata.xShift, fontMetadata.yShift, fontMetadata.zShift) },
+        scale: { value: new Vector3(fontMetadata.xScale, fontMetadata.yScale, fontMetadata.zScale) },
+      }
+
+      // Strip out features we definitely don't need
+      // Strip morph targets
+      shader.vertexShader = shader.vertexShader.replace(/#include <morphtarget_pars_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <morphtarget_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <morphcolor_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <morphnormal_vertex>/gi, '')
+
+      // Strip animated vertex skinning
+      shader.vertexShader = shader.vertexShader.replace(/#include <skinning_pars_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <skinbase_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <skinning_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <skinnormal_vertex>/gi, '')
+
+      // Strip displacement mapping
+      shader.vertexShader = shader.vertexShader.replace(/#include <displacementmap_pars_vertex>/gi, '')
+      shader.vertexShader = shader.vertexShader.replace(/#include <displacementmap_vertex>/gi, '')
+
+      // Insert global chunk
+      shader.vertexShader = shader.vertexShader.replace(
+        />[\n]*void/,
+        `>
         uniform sampler2D offsets;
+        uniform sampler2D normals;
         uniform vec3 shift;
         uniform vec3 scale;
-        in vec3 position;
-        in mat4 instanceMatrix;
         in float instanceGIndex;
-        in vec4 instanceColor;
-        out vec4 vColor;
-        void main() {
-            vColor = instanceColor;
-            vec3 offset = texelFetch(offsets, ivec2(gl_VertexID, instanceGIndex), 0).rgb * scale + shift;
-            gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(offset, 1.0);
-        }`
 
-    // TODO: support generic shading
-    material.fragmentShader = `#version 300 es
-        precision highp float;
-        layout(location = 0) out highp vec4 pc_fragColor;
-        in vec4 vColor;
-        void main() {
-            if (vColor.a == 0.0) discard;
-            pc_fragColor = vColor;
-        }`
+        void`
+      )
+
+      // Insert program chunk
+      shader.vertexShader = shader.vertexShader.replace(
+        /void main\(\) {/,
+        `void main() { vec3 offset = texelFetch(offsets, ivec2(gl_VertexID, instanceGIndex), 0).rgb * scale + shift;`
+      )
+
+      // Replace normal init
+      shader.vertexShader = shader.vertexShader.replace(
+        /#include <beginnormal_vertex>/,
+        `vec3 objectNormal = (texelFetch(normals, ivec2(gl_VertexID, instanceGIndex), 0).rgb) - 0.5;`
+      )
+      // Replace position init
+      shader.vertexShader = shader.vertexShader.replace(/#include <begin_vertex>/, `vec3 transformed = offset;`)
+    }
 
     return material
-  }, [fontTexture, fontMetadata])
+  }, [offsetsTexture, normalsTexture, fontMetadata])
 
   return textMat
 }

@@ -23,6 +23,11 @@ export default {
       use: ['raw-loader', 'glslify-loader'],
       include: resolve(__dirname, '../'),
     })
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: 'javascript/auto',
+    })
 
     return config
   },

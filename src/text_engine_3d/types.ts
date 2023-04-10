@@ -21,7 +21,8 @@ export interface FontInfo3D {
 
 export interface Font3D {
   fontMetadata: FontInfo3D
-  texturePath: string
+  offsetsPath: string
+  normalsPath: string
 }
 
 interface BoundingBox {
