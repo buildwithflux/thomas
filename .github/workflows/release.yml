@@ -28,7 +28,7 @@ jobs:
   release:
     needs: main
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'buildwithflux/text-engine' && contains('refs/heads/master,refs/heads/beta,refs/heads/alpha',github.ref) && github.event_name == 'push' }}
+    if: ${{ github.repository == 'buildwithflux/thomas' && contains('refs/heads/master,refs/heads/beta,refs/heads/alpha',github.ref) && github.event_name == 'push' }}
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.6.0

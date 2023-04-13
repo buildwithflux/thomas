@@ -1,18 +1,18 @@
 {
-  "name": "text-engine",
+  "name": "thomas",
   "version": "0.0.0-semantic-release",
   "private": true,
   "description": "",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/buildwithflux/text-engine"
+    "url": "git+https://github.com/buildwithflux/thomas"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/buildwithflux/text-engine/issues"
+    "url": "https://github.com/buildwithflux/thomas/issues"
   },
-  "homepage": "https://github.com/buildwithflux/text-engine",
+  "homepage": "https://github.com/buildwithflux/thomas",
   "maintainers": [
     "Giulio Zausa (https://github.com/giulioz)"
   ],
