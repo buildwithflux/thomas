@@ -24,7 +24,7 @@ jobs:
         # this runs a build script so there is no dedicated build
         run: yarn install
       - name: Run storybook build script
-        run: yarn build-storybook
+        run: NODE_OPTIONS=--openssl-legacy-provider yarn build-storybook
   release:
     needs: main
     runs-on: ubuntu-latest
