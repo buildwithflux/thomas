@@ -52,6 +52,7 @@ function Text2D() {
           text="Example text"
           // An unique key for this instance
           instanceKey="unique_key"
+
           // Optional styling props
           bold={false}
           color={new Color('#ff0000')}
@@ -59,6 +60,7 @@ function Text2D() {
           outlineWidth={0.13}
           outlineOpacity={0.4}
           outlineColor={new Color('#0000ff')}
+
           // Optional layouting props
           alignX="left" // 'left' | 'center' | 'right'
           alignY="top" // 'top' | 'middle' | 'bottom'
@@ -66,8 +68,10 @@ function Text2D() {
           width={500}
           lineHeight={10}
           yShift={0}
+
           // Gets called before updating, useful for applying imperative updates
           onBeforeUpdate={updateFunction}
+
           // You can also get a ref to apply imperative mutations
           ref={textRef}
         />
@@ -107,13 +111,15 @@ function Text3DScene() {
         <InstancedText
           text="Example text"
           font={styles[0]}
+          
           // Depth of the text geometry
           thickness={1}
           // Size of the text geometry
           fontSize={1}
+
           // Optional props
           textAlign={TextAlignment.left}
-          color={new Color('#ff0000')}
+          color={new Color("#ff0000")}
           opacity={0.8}
 
           // Also accepts any Object3D props
