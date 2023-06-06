@@ -44,7 +44,7 @@ jobs:
         # this runs a build script so there is no dedicated build
         run: yarn install
       - name: 🚀 Release
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v3
         with:
           semantic_version: 18
           extra_plugins: |
