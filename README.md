@@ -14,10 +14,10 @@ Try our [demo here](https://thomas-the-text-engine.netlify.app)!
 
 thomas provides high quality instanced rendering for 2D quads with text, using multichannel signed distance fields.
 
-<div style="display:flex;align-items:center;gap:4px">
-  <img src="docs/lots-2d.png" width="300px" />
-  <img src="docs/colors-2d.png" width="300px" />
-  <img src="docs/align-2d.png" width="300px" />
+<div>
+  <img src="docs/lots-2d.png" width="250px" />
+  <img src="docs/colors-2d.png" width="250px" />
+  <img src="docs/align-2d.png" width="250px" />
 </div>
 
 ```tsx
