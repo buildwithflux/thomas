@@ -42,10 +42,11 @@ function StyleGroupRenderer({
   textStyle: ISDFTextStyle
   atlas: Texture
   font: Font
-  atlasBold: Texture
-  fontBold: Font
+  atlasBold?: Texture
+  fontBold?: Font
 } & MeshProps) {
-  const fontData = textStyle.bold ? fontBold.data : font.data
+  const shouldDoBold = atlasBold && fontBold && textStyle.bold
+  const fontData = shouldDoBold ? fontBold.data : font.data
 
   const geometry = useState(() => new MSDFTextGeometry({ font: fontData, texts: [] }))[0]
   useLayoutEffect(() => () => geometry.dispose(), [geometry])
@@ -100,20 +101,20 @@ function StyleGroupRenderer({
 
   const uniforms = useMemo(() => {
     return {
-      uMap: { value: textStyle.bold ? atlasBold : atlas },
+      uMap: { value: shouldDoBold ? atlasBold : atlas },
       uColor: { value: textStyle.color ?? white },
       uOpacity: { value: textStyle.opacity ?? 1.0 },
       uOffset: { value: 0 },
     }
-  }, [textStyle.bold, textStyle.opacity, textStyle.color, atlas, atlasBold])
+  }, [shouldDoBold, textStyle.opacity, textStyle.color, atlas, atlasBold])
   const uniformsOutline = useMemo(() => {
     return {
-      uMap: { value: textStyle.bold ? atlasBold : atlas },
+      uMap: { value: shouldDoBold ? atlasBold : atlas },
       uColor: { value: textStyle.outlineColor ?? black },
       uOpacity: { value: textStyle.outlineOpacity ?? 0.4 },
       uOffset: { value: textStyle.outlineWidth },
     }
-  }, [textStyle.bold, textStyle.outlineOpacity, textStyle.outlineColor, textStyle.outlineWidth, atlas, atlasBold])
+  }, [shouldDoBold, textStyle.outlineOpacity, textStyle.outlineColor, textStyle.outlineWidth, atlas, atlasBold])
 
   return (
     <>
@@ -133,13 +134,13 @@ export function SDFTextProvider({
   children,
   fontPathRegular,
   fontPathBold,
-}: PropsWithChildren<{ fontPathRegular: ISDFFont; fontPathBold: ISDFFont }>) {
+}: PropsWithChildren<{ fontPathRegular: ISDFFont; fontPathBold?: ISDFFont }>) {
   useMemo(registerTextEngineToR3F, [])
 
   const atlas = useTexture(fontPathRegular.sdfPath)
   const font = useLoader(FontLoader, fontPathRegular.fontPath) as Font
-  const atlasBold = useTexture(fontPathBold.sdfPath)
-  const fontBold = useLoader(FontLoader, fontPathBold.fontPath) as Font
+  const atlasBold = useTexture(fontPathBold ? fontPathBold.sdfPath : [])
+  const fontBold = useLoader(FontLoader, fontPathBold ? fontPathBold.fontPath : []) as Font
 
   // We have a mutable map of immutable arrays, so we are using a force update
   const instancesGroups = useState<Map<string, ISDFTextStyleGroup>>(() => new Map())[0]
@@ -185,8 +186,8 @@ export function SDFTextProvider({
             instances={ig.instances}
             atlas={atlas}
             font={font}
-            atlasBold={atlasBold}
-            fontBold={fontBold}
+            atlasBold={Array.isArray(atlasBold) ? undefined : atlasBold}
+            fontBold={Array.isArray(fontBold) ? undefined : fontBold}
           />
         ))}
       </>
