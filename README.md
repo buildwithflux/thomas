@@ -10,7 +10,7 @@ npm install thomas
 
 Try our [demo here](https://thomas-the-text-engine.netlify.app)!
 
-## API for 2D Text Rendering
+## API for 2D Text
 
 thomas provides high quality instanced rendering for 2D quads with text, using multichannel signed distance fields.
 
@@ -19,6 +19,7 @@ thomas provides high quality instanced rendering for 2D quads with text, using m
   <img src="docs/colors-2d.png" width="250px" />
   <img src="docs/align-2d.png" width="250px" />
 </div>
+<br />
 
 ```tsx
 // Provides the paths to the font to the provider, should be served by your webserver
@@ -72,6 +73,53 @@ function Text2D() {
         />
       </group>
     </SDFTextProvider>
+  )
+}
+```
+
+## API for 3D Text
+
+Like for the 2D text, wrap your scene with a provider and spawn instances using the `<InstancedText />` component.
+
+<div>
+  <img src="docs/persp-3d.png" width="250px" />
+  <img src="docs/demo-3d.png" width="250px" />
+</div>
+<br />
+
+```tsx
+import robotoRegular3DInfo from '../public/robotoRegular3D/info.json'
+
+// Provides the paths to the font to the provider, should be served by your webserver
+const styles = [
+  {
+    fontMetadata: robotoRegular3DInfo,
+    offsetsPath: '/robotoRegular3D/font.png',
+    normalsPath: '/robotoRegular3D/normals.png',
+  },
+]
+
+function Text3DScene() {
+  return (
+    <InstancedTextProvider styles={styles}>
+      {/* InstancedText will get the transforms from the parent */}
+      <group position={[10, 0, 0]}>
+        <InstancedText
+          text="Example text"
+          font={styles[0]}
+          // Depth of the text geometry
+          thickness={1}
+          // Size of the text geometry
+          fontSize={1}
+          // Optional props
+          textAlign={TextAlignment.left}
+          color={new Color('#ff0000')}
+          opacity={0.8}
+
+          // Also accepts any Object3D props
+        />
+      </group>
+    </InstancedTextProvider>
   )
 }
 ```

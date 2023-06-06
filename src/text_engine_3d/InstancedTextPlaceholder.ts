@@ -1,5 +1,6 @@
 import { ReactThreeFiber, extend } from '@react-three/fiber'
 import { Box3, Group, Intersection, Matrix4, Ray, Raycaster, Sphere, Vector3 } from 'three'
+import { InstancedTextAPI } from './types'
 
 export function registerInstancedTextPlaceholderToR3F() {
   extend({ InstancedTextPlaceholder })
@@ -32,8 +33,10 @@ const _sphere = new Sphere()
 const _vA = new Vector3()
 
 export class InstancedTextPlaceholder extends Group {
+  textAPI?: InstancedTextAPI = undefined
+
   // For correct bounding box
-  geometry = new InstancedTextPlaceholderGeometry()
+  geometry: InstancedTextPlaceholderGeometry = new InstancedTextPlaceholderGeometry()
 
   override raycast(raycaster: Raycaster, intersects: Intersection[]) {
     const geometry = this.geometry

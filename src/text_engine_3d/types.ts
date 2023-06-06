@@ -1,3 +1,5 @@
+import { InstancedTextBuffers, TextInstancesPtr } from './instancedTextBuffers'
+
 export enum TextAlignment {
   left = 'left',
   right = 'right',
@@ -30,4 +32,10 @@ interface BoundingBox {
   yMin: number
   xMax: number
   yMax: number
+}
+
+export interface InstancedTextAPI {
+  getBuffers: () => InstancedTextBuffers | null
+  getPtr: () => TextInstancesPtr | null
+  setGlyphs: (text: string) => void
 }

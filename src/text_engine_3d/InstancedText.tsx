@@ -1,6 +1,6 @@
 import { GroupProps } from '@react-three/fiber'
 import * as React from 'react'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Box3, Color, Sphere, Vector3 } from 'three'
 
 import { TextInstancesPtr } from './instancedTextBuffers'
@@ -130,9 +130,31 @@ export function InstancedText({
     }
   }, [api, opacity])
 
+  const textAPI = useMemo(
+    () => ({
+      getBuffers: () => myPtrRef.current && api.getBuffers(myPtrRef.current),
+      getPtr: () => myPtrRef.current,
+      setGlyphs: (text: string) => {
+        if (!myPtrRef.current) return
+        const buffers = api.getBuffers(myPtrRef.current)
+        if (!buffers) return
+
+        const glyphIds = Array.from(text).map((c) => font.fontMetadata.charToIndex[c])
+        buffers.instanceGIndexBuffer.set(glyphIds, myPtrRef.current.start)
+        buffers.instanceGIndexBufferAttribute.needsUpdate = true
+      },
+    }),
+    [font.fontMetadata.charToIndex]
+  )
+
   return (
-    <group scale={[fontSize * (scale?.x ?? 1), fontSize * (scale?.y ?? 1), thickness * (scale?.z ?? 1)]} {...rest}>
-      <instancedTextPlaceholder ref={groupRef} />
-    </group>
+    // @ts-ignore
+    <instancedTextPlaceholder
+      scale={[fontSize * (scale?.x ?? 1), fontSize * (scale?.y ?? 1), thickness * (scale?.z ?? 1)]}
+      {...rest}
+      textAPI={textAPI}
+      ref={groupRef}
+      frustumCulled={false}
+    />
   )
 }

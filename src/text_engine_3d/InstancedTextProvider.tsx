@@ -36,6 +36,7 @@ interface IInstancedTextAPI {
   ) => TextInstancesPtr | undefined
   removeInstances: (ptr: TextInstancesPtr) => void
   setOpacity: (ptr: TextInstancesPtr, opacity: number) => void
+  getBuffers: (ptr: TextInstancesPtr) => InstancedTextBuffers | null
 }
 
 const instancedTextContext = createContext<IInstancedTextAPI | null>(null)
@@ -122,6 +123,9 @@ const StyleGroup = forwardRef<IInstancedTextAPI & { font: Font3D }, { font: Font
         }
         buffers.instanceColorBufferAttribute.needsUpdate = true
       },
+      getBuffers: () => {
+        return buffersRef.current
+      },
     }),
     [font, realloc]
   )
@@ -134,7 +138,7 @@ const StyleGroup = forwardRef<IInstancedTextAPI & { font: Font3D }, { font: Font
   })
 
   if (!geometry) return null
-  return <instancedMesh args={[geometry, textMat, instanceAllocated]} />
+  return <instancedMesh frustumCulled={false} args={[geometry, textMat, instanceAllocated]} />
 })
 
 export function InstancedTextProvider({ children, styles }: PropsWithChildren<{ styles: Font3D[] }>) {
@@ -160,6 +164,10 @@ export function InstancedTextProvider({ children, styles }: PropsWithChildren<{ 
       setOpacity: (ptr, opacity) => {
         const api = stylesApisRef.current.get(ptr.font)
         api?.setOpacity(ptr, opacity)
+      },
+      getBuffers: (ptr) => {
+        const api = stylesApisRef.current.get(ptr.font)
+        return api?.getBuffers(ptr) ?? null
       },
     }),
     []

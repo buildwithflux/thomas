@@ -4,9 +4,16 @@ import { useTexture } from '@react-three/drei'
 
 import { FontInfo3D } from './types'
 
-export function useInstancedTextMaterial(offsetsTexture: Texture, normalsTexture: Texture, fontMetadata: FontInfo3D) {
+const defaultMaterial = () => new MeshPhongMaterial()
+
+export function useInstancedTextMaterial(
+  offsetsTexture: Texture,
+  normalsTexture: Texture,
+  fontMetadata: FontInfo3D,
+  originalMaterial = defaultMaterial
+) {
   const textMat = useMemo(() => {
-    const material = new MeshPhongMaterial()
+    const material = originalMaterial()
     material.onBeforeCompile = (shader) => {
       shader.uniforms = {
         ...shader.uniforms,
@@ -62,7 +69,7 @@ export function useInstancedTextMaterial(offsetsTexture: Texture, normalsTexture
     }
 
     return material
-  }, [offsetsTexture, normalsTexture, fontMetadata])
+  }, [offsetsTexture, normalsTexture, fontMetadata, originalMaterial])
 
   return textMat
 }
